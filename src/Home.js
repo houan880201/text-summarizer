@@ -3,19 +3,42 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Typography, 
          TextField } from '@material-ui/core';
 import Fab from '@material-ui/core/Fab';
+import Axios from 'axios';
+
 
 
 export default function Home() {
 
     const classes = useStyles();
     const [value, setValue] = React.useState('Controlled');
-
-    let submit = false
-    let returnText = "THIS SHOULD BE THE RETURNED TEXT"
+    const [returnText, setReturnText] = React.useState("THIS SHOULD BE THE RETURNED TEXT");
 
     const handleChange = event => {
         setValue(event.target.value);
     };
+
+    const buildData = (inputText) => {
+        return [
+            {
+                "id": 0,
+                "src": inputText,
+                "template": "france seeking release of UNK soldier UNK UNK details of french efforts UNK"
+            }
+        ]
+    
+    }
+
+    const sendText = () => {
+        const data = buildData(value)
+        return Axios.post('http://0.0.0.0:5000/translator/translate', data, {header: {'Content-Type': 'application/json'}})
+            .then( (response) => {
+                setReturnText(response.data[0][0].tgt)
+                console.log(response)
+            })
+            .catch( (error) => {
+                console.log(error)
+            })
+    }
 
 
     return (
@@ -62,14 +85,15 @@ export default function Home() {
                         }}
                         /> 
                 </div>
-                <Fab variant="extended" style={{backgroundColor: '#badfdb'}} onClick={console.log("Click")} aria-label="add" className={classes.margin}>
+                <Fab variant="extended" style={{backgroundColor: '#badfdb'}} onClick={sendText} aria-label="add" className={classes.margin}>
                     {/* <NavigationIcon className={classes.extendedIcon} /> */}
                     <Typography style={{marginLeft: '40%', marginRight: '40%', fontFamily: 'Bebas Neue', fontSize: 28}}variant='button'>Summarize!</Typography>
                 </Fab>
+                
 
                 <TextField
                     id="input_text"
-                    value="Output Text"
+                    value={returnText}
                     multiline
                     disabled={true}
                     rows="20"
@@ -91,7 +115,9 @@ export default function Home() {
                         },
                         inputMode: "numeric"
                     }}
-                    />
+                />
+            
+                
             </div>
         </div>
     )
