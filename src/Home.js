@@ -17,16 +17,6 @@ export default function Home() {
         setValue(event.target.value);
     };
 
-    function convertText(){
-        console.log(value)
-    }
-
-    function getText(){
-        if (submit){
-            submit = false
-            return returnText
-        }
-    }
 
     return (
         <div className="Home">
@@ -35,7 +25,7 @@ export default function Home() {
                     Text Summarization
                 </Typography>
             </div>
-            <div className="instruction" style={{marginLeft: 120, marginRight: 260, display: 'flex', alignItems: 'center', justifyContent: "space-between"}}>
+            <div className="instruction" style={{marginLeft: '12%', marginRight: '18%', display: 'flex', alignItems: 'center', justifyContent: "space-between"}}>
                     <Typography variant='overline' align='left'>
                         Please enter the text you would like to summarize!
                     </Typography>
@@ -44,7 +34,7 @@ export default function Home() {
                     </Typography>
             </div>
 
-            <div className="content" style={{marginLeft: 100, marginRight: 100, display: 'flex', alignItems: 'center', justifyContent: "center"}}>
+            <div className="content" style={{marginLeft: '5%', marginRight: '5%', display: 'flex', alignItems: 'center', justifyContent: "center"}}>
                 <div className="col1" style={{flex: 1, display: 'flex'}}>
                     <TextField
                         id="input_text"
@@ -72,17 +62,16 @@ export default function Home() {
                         }}
                         /> 
                 </div>
-                <Fab variant="extended" style={{backgroundColor: '#badfdb'}} onClick={convertText} aria-label="add" className={classes.margin}>
+                <Fab variant="extended" style={{backgroundColor: '#badfdb'}} onClick={console.log("Click")} aria-label="add" className={classes.margin}>
                     {/* <NavigationIcon className={classes.extendedIcon} /> */}
-                    <Typography style={{marginLeft: 20, marginRight: 20, fontFamily: 'Bebas Neue', fontSize: 28}}variant='button'>Summarize!</Typography>
+                    <Typography style={{marginLeft: '40%', marginRight: '40%', fontFamily: 'Bebas Neue', fontSize: 28}}variant='button'>Summarize!</Typography>
                 </Fab>
 
                 <TextField
                     id="input_text"
-                    label="Output Text"
+                    value="Output Text"
                     multiline
                     disabled={true}
-                    value={getText()}
                     rows="20"
                     className={classes.textField}
                     margin="normal"
