@@ -13,6 +13,10 @@ export default function Home() {
     const [value, setValue] = React.useState('Controlled');
     const [returnText, setReturnText] = React.useState("THIS SHOULD BE THE RETURNED TEXT");
 
+    const [oriLen, setOriLen] = React.useState(0);
+    const [newLen, setNewLen] = React.useState(0);
+
+
     const handleChange = event => {
         setValue(event.target.value);
     };
@@ -30,9 +34,14 @@ export default function Home() {
 
     const sendText = () => {
         const data = buildData(value)
+        setOriLen(value.length)
         return Axios.post('http://0.0.0.0:5000/translator/translate', data, {header: {'Content-Type': 'application/json'}})
             .then( (response) => {
-                setReturnText(response.data[0][0].tgt)
+                const newText = response.data[0][0].tgt
+                setReturnText(newText)
+                setNewLen(newText.length)
+                console.log(newLen)
+                console.log(oriLen)
                 console.log(response)
             })
             .catch( (error) => {
@@ -116,7 +125,16 @@ export default function Home() {
                         inputMode: "numeric"
                     }}
                 />
-            
+            </div>
+            <div className="bottomBar" style={{marginLeft: '55%', marginTop: '2%', marginRight: '5%', display: 'flex', alignItems: 'center', justifyContent: "flex-start"}}>
+                <div className="percentageScore" style={{display:'flex', flexDirection: 'column'}}>
+                    <Typography style={{paddingTop: '5%', fontFamily: 'Bebas Neue', fontSize: 120, paddingBottom: '5%', color: '#f8a978'}} variant='h1'>
+                        {newLen == 0 ? (0) : (Math.round(newLen * 100 / oriLen))}%
+                    </Typography>   
+                    <Typography style={{paddingTop: '5%', fontFamily: 'Bebas Neue', fontSize: 20, paddingBottom: '5%', color: 'black'}} variant='outline'>
+                        Length Reduced to
+                    </Typography>  
+                </div>
                 
             </div>
         </div>
