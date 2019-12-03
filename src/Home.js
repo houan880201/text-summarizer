@@ -15,12 +15,9 @@ import { PulseLoader } from 'react-spinners';
 import { css } from '@emotion/core';
 import Popup from "reactjs-popup";
 import Highlighter from "react-highlight-words";
-import AliceCarousel from 'react-alice-carousel'
 import 'react-alice-carousel/lib/alice-carousel.css' 
 import ImageGallery from 'react-image-gallery';
-import ImageSlider from 'image-slider-react';
 import './Home.css';
-import { Slide } from 'react-slideshow-image';
 
 
 import { CircularProgressbar } from 'react-circular-progressbar';
@@ -151,7 +148,12 @@ export default function Home() {
 
         return (
             <div style={{width: '100%', height: '30%'}}>
-                <ImageGallery disableThumbnailScroll={true} className="image-gallery-slide" items={images} />
+                <ImageGallery 
+                    disableThumbnailScroll={true} 
+                    className="image-gallery-slide" 
+                    showPlayButton={false}
+                    showFullscreenButton={false}
+                    items={images} />
             </div>
         )
       }
@@ -348,13 +350,13 @@ export default function Home() {
                     </Typography>
                 </div>
 
-                <div className={classes.scoreDiv}>
+                {/* <div className={classes.scoreDiv}>
                     <CircularProgressbar 
                         value={oriLen} 
-                        text={`${oriLen}`} 
+                        text={`${newLen === 0 ? (0) : (100 - Math.round(newLen * 100 / oriLen))}`} 
                         styles={{
                             path: {
-                                stroke: `#f8a978, ${oriLen / 500})`,
+                                stroke: `#f8a978, ${newLen === 0 ? (0) : (100 - Math.round(newLen * 100 / oriLen))})`,
                                 strokeLinecap: 'butt',
                                 transition: 'stroke-dashoffset 0.5s ease 0s',
                                 transformOrigin: 'center center',
@@ -371,7 +373,7 @@ export default function Home() {
                                 fill: '#f8a978'
                             }
                         }}/>;
-                </div>
+                </div> */}
 
                 <div className={classes.scoreDiv}>
                     <Typography className={classes.scoreText} variant='overline'>
