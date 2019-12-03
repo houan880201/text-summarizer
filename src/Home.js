@@ -11,6 +11,9 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import keyword_extractor from 'keyword-extractor';
+import { PulseLoader } from 'react-spinners';
+import { css } from '@emotion/core';
+
 
 
 export default function Home() {
@@ -25,6 +28,13 @@ export default function Home() {
     const [imageUrl, setImageUrl] = React.useState("");
     const [keyword1, setKeyWord1] = React.useState("Keyword 1");
     const [keyword2, setKeyWord2] = React.useState("Keyword 2");
+    const [loading, setLoading] = React.useState(false);
+
+    const override = css`
+        display: block;
+        margin: 2 auto;
+        border-color: red;
+    `;
 
     const cleanText = string => {
         return string.replace(/"/g,"'").toLowerCase();
@@ -89,10 +99,12 @@ export default function Home() {
         const data = buildData(value)
         console.log("DATA SENT TO BACKEND")
         console.log(data)
-        setOriLen(value.split(' ').length)
+        setLoading(true)
         return Axios.post('http://0.0.0.0:5000/translator/translate', data, {header: {'Content-Type': 'application/json'}})
             .then( (response) => {
                 const newText = response.data[0][0].tgt
+                setLoading(false)
+                setOriLen(value.split(' ').length)
                 setReturnText(capitalize(newText))
                 setNewLen(newText.split(' ').length)
                 setPredScore(response.data[0][0].pred_score)
@@ -160,9 +172,30 @@ export default function Home() {
                         }}
                         /> 
                 </div>
-                <Fab variant="extended" style={{flex: 1, backgroundColor: '#badfdb', paddingLeft: '5%', paddingRight: '5%'}} onClick={sendText} aria-label="add" className={classes.margin}>
-                    <Typography style={{marginLeft: '40%', marginRight: '40%', fontFamily: 'Bebas Neue', fontSize: 28}}variant='button'>Summarize!</Typography>
-                </Fab>
+
+
+                <div style={{alignItems: 'center', flex: 1, flexDirection: 'column', justifyContent: 'center'}} className={classes.margin}>
+
+                    <div style={{flex: 1}}>
+                        <PulseLoader 
+                            css={override}
+                            sizeUnit={"px"}
+                            size={20}
+                            color={'#badfdb'}
+                            loading={loading}
+                            />
+                    </div>
+                    
+                    {!loading ? (
+
+                        <Fab variant="extended" style={{flex: 1, paddingLeft: '20%', paddingRight: '20%', backgroundColor: '#badfdb'}} onClick={sendText} aria-label="add" className={classes.margin}>
+                            <Typography style={{fontFamily: 'Bebas Neue', fontSize: 28}}variant='button'>Summarize!</Typography>
+                        </Fab>
+                    ) : (
+                        null
+                    )}
+      
+                </div>
                 
                 <div className="col1" style={{flex: 2, display: 'flex'}}>
                     {/* <TextField
