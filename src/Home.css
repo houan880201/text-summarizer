@@ -1,0 +1,23 @@
+.image-gallery {
+    width: '100%';
+    height: auto;
+}
+
+.image-gallery-slide img {
+    width: '50%';
+    height: '50%';
+    max-height: 80vh;
+    object-fit: cover;
+    overflow: hidden;
+    object-position: center center;
+    background-color: 'black';
+}
+
+.fullscreen .image-gallery-slide img {
+    max-height: 100vh;
+}
+
+.image-gallery-image img {
+    max-height: 150px;
+    max-width: 400px;
+}

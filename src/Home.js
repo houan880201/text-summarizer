@@ -13,19 +13,32 @@ import Button from '@material-ui/core/Button';
 import keyword_extractor from 'keyword-extractor';
 import { PulseLoader } from 'react-spinners';
 import { css } from '@emotion/core';
+import Popup from "reactjs-popup";
+import Highlighter from "react-highlight-words";
+import AliceCarousel from 'react-alice-carousel'
+import 'react-alice-carousel/lib/alice-carousel.css' 
+import ImageGallery from 'react-image-gallery';
+import ImageSlider from 'image-slider-react';
+import './Home.css';
+import { Slide } from 'react-slideshow-image';
 
+
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 
 export default function Home() {
 
     const classes = useStyles();
-    const [value, setValue] = React.useState('Controlled');
+    const [value, setValue] = React.useState('');
     const [returnText, setReturnText] = React.useState("THIS SHOULD BE THE RETURNED TEXT");
 
     const [oriLen, setOriLen] = React.useState(0);
     const [newLen, setNewLen] = React.useState(0);
     const [predScore, setPredScore] = React.useState(0);
+    const [sentenceCount, setSentenceCount] = React.useState(0);
     const [imageUrl, setImageUrl] = React.useState("");
+    const [imageUrls, setImageLists] = React.useState([]);
     const [keyword1, setKeyWord1] = React.useState("Keyword 1");
     const [keyword2, setKeyWord2] = React.useState("Keyword 2");
     const [loading, setLoading] = React.useState(false);
@@ -38,6 +51,10 @@ export default function Home() {
 
     const cleanText = string => {
         return string.replace(/"/g,"'").toLowerCase();
+    }
+
+    const countSentences = string => {
+        return string.split(".").length - 1
     }
 
     const getKeyWords = string => {
@@ -95,6 +112,50 @@ export default function Home() {
         ]
     }
 
+    const properties = {
+        duration: 5000,
+        transitionDuration: 500,
+        infinite: true,
+        indicators: true,
+        arrows: true,
+        onChange: (oldIndex, newIndex) => {
+          console.log(`slide transition from ${oldIndex} to ${newIndex}`);
+        }
+      }
+
+    const Gallery = () => {
+        console.log("========")
+        console.log(imageUrls.length)
+
+        if (imageUrls.length == 0) {
+            return (
+                <CardMedia
+                    component="img"
+                    alt="Summary Photo"
+                    height="140"
+                    image={imageUrl ? (imageUrl) : ("https://virtuallytiedtomydesktop.files.wordpress.com/2019/09/summary-stamp-summary-grunge-vintage-stamp-isolated-white-background-summary-sign-153529381.jpg")}
+                    title="Summary Photo"
+                    style={{width: "100%"}}
+                    />
+            )
+        }
+
+        var images = []
+        imageUrls.map((url) => {
+            images.push({
+                "original": url,
+                "sizes": "(max-width: 600px) 200px, 50vw"
+            })
+        })
+
+
+        return (
+            <div style={{width: '100%', height: '30%'}}>
+                <ImageGallery disableThumbnailScroll={true} className="image-gallery-slide" items={images} />
+            </div>
+        )
+      }
+
     const sendText = () => {
         const data = buildData(value)
         console.log("DATA SENT TO BACKEND")
@@ -108,8 +169,10 @@ export default function Home() {
                 setReturnText(capitalize(newText))
                 setNewLen(newText.split(' ').length)
                 setPredScore(response.data[0][0].pred_score)
-                setImageUrl(response.data[0][0].urls)
-                getKeyWords(value)
+                setImageUrl(response.data[0][0].urls[0])
+                setImageLists(response.data[0][0].urls)
+                setSentenceCount(countSentences(value))
+                // getKeyWords(value)
                 console.log(newLen)
                 console.log(oriLen)
                 console.log(response)
@@ -226,28 +289,44 @@ export default function Home() {
                     /> */}
                     <div style={{flex: 1}}>
                       <Card className={classes.card}>
-                            <CardActionArea style={{flex: 10}}>
-                                <CardMedia
+                            <CardActionArea style={{flex: 15}}>
+                                {/* <CardMedia
                                     component="img"
                                     alt="Summary Photo"
                                     height="140"
                                     image={imageUrl ? (imageUrl) : ("https://virtuallytiedtomydesktop.files.wordpress.com/2019/09/summary-stamp-summary-grunge-vintage-stamp-isolated-white-background-summary-sign-153529381.jpg")}
                                     title="Summary Photo"
                                     style={{width: "100%"}}
-                                    />
+                                    /> */}
+                                {Gallery()}
                             </CardActionArea>
                             <CardContent style={{flex: 1}}>
-                                <Typography className={classes.cardText} variant="overline" align='left'>
+                                <Typography className={classes.resize}>
                                     {returnText}
                                 </Typography>
                             </CardContent>
                             <CardActions style={{flex: 1, justifyContent: 'center'}}>
-                                <Button size="small" color="primary">
-                                    {keyword1}
+                                {/* <Button size="small" color="primary" style={{fontFamily: 'Solway'}}>
+                                    Button1
                                 </Button>
-                                <Button size="small" color="primary">
-                                    {keyword2}
-                                </Button>
+                                <Button size="small" color="primary" style={{fontFamily: 'Solway'}}>
+                                    Button2
+                                </Button> */}
+                                <Popup trigger={<Button size="small" color="primary" style={{fontFamily: 'Solway'}} >
+                                                Selected Words
+                                                </Button>} 
+                                        position="bottom center">
+                                    <div style={{padding: 20, fontFamily: 'Solway'}}>
+                                        <Highlighter
+                                            highlightClassName="highlighter"
+                                            searchWords={returnText.split(' ')}
+                                            autoEscape={true}
+                                            highlightStyle={{backgroundColor: '#f8a978'}}
+                                            textToHighlight={value.length == 0 ? ( "Input something!" ) : (value) }
+                                            />
+                                    </div>
+                                </Popup>
+                                
                             </CardActions>
                             </Card>
                     </div>
@@ -269,17 +348,42 @@ export default function Home() {
                     </Typography>
                 </div>
 
-                {/* <div className={classes.scoreDiv}>
+                <div className={classes.scoreDiv}>
+                    <CircularProgressbar 
+                        value={oriLen} 
+                        text={`${oriLen}`} 
+                        styles={{
+                            path: {
+                                stroke: `#f8a978, ${oriLen / 500})`,
+                                strokeLinecap: 'butt',
+                                transition: 'stroke-dashoffset 0.5s ease 0s',
+                                transformOrigin: 'center center',
+                              },
+                            trail: {
+                                stroke: '#d6d6d6',
+                                strokeLinecap: 'butt',
+                                transform: 'rotate(0.25turn)',
+                                transformOrigin: 'center center',
+                            },
+                            text: {
+                                fontFamily: 'Bebas Neue', 
+                                fontSize: 50, 
+                                fill: '#f8a978'
+                            }
+                        }}/>;
+                </div>
+
+                <div className={classes.scoreDiv}>
                     <Typography className={classes.scoreText} variant='overline'>
-                        Some metric
+                        Number of 
                     </Typography>
                     <Typography className={classes.score} variant='h1'>
-                        0
+                        {sentenceCount}
                     </Typography>   
                     <Typography className={classes.scoreText} variant='overline'>
-                        TODO
+                        Sentences
                     </Typography>
-                </div> */}
+                </div>
 
                 <div className={classes.scoreDiv}>
                     <Typography className={classes.scoreText} variant='overline'>
@@ -305,7 +409,7 @@ export default function Home() {
                     </Typography>
                 </div>
                 
-                <div className={classes.scoreDiv}>
+                {/* <div className={classes.scoreDiv}>
                     <Typography className={classes.scoreText} variant='overline'>
                         Prediction Score
                     </Typography>
@@ -315,21 +419,23 @@ export default function Home() {
                     <Typography className={classes.scoreText} variant='overline'>
                         from model
                     </Typography>
-                </div>
+                </div> */}
             </div>
         </div>
     )
 }
 
 const useStyles = makeStyles(theme => ({
+    highlighter: {
+        padding: 20,
+    },
     card: {
-        // maxWidth: '95%',
-        // maxHeight: '100%',
-        width: '95%',
+        width: '100%%',
         height: '100%',
         border: "10px solid #badfdb",
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        backgroundColor: '#fcf9ea'
     },
     container: {
         display: 'flex',
@@ -363,8 +469,9 @@ const useStyles = makeStyles(theme => ({
         paddingTop: '2%', 
         paddingBottom: '5%', 
         display:'flex', 
-        marginRight: '3%', 
-        marginLeft: '3%', 
+        margin: '0 auto 0 auto',
+        // marginRight: '3%', 
+        // marginLeft: '3%', 
         flexDirection: 'column'
     },
     scoreText: {
@@ -374,7 +481,7 @@ const useStyles = makeStyles(theme => ({
         color: 'black'
     },
     cardText: {
-        fontFamily: 'Bebas Neue', 
+        fontFamily: 'Solway', 
         fontSize: '100%', 
         letterSpacing: 2,
         color: 'black'
@@ -385,11 +492,11 @@ const useStyles = makeStyles(theme => ({
         color: '#f8a978'
     },
     scoreContainer: {
-        marginLeft: '5%', 
-        marginRight: '5%', 
+        // margin: '0 auto 0 auto',
+        marginLeft: '15%', 
+        marginRight: '15%', 
         display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: "center"
+        justifyContent: 'space-between',
     },
     instruction: {
         flex: 2,
